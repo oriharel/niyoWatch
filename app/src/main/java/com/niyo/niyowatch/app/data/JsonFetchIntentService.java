@@ -10,6 +10,7 @@ import com.niyo.niyowatch.app.GenericHttpRequestTask;
 import com.niyo.niyowatch.app.ServiceCaller;
 import com.niyo.niyowatch.app.WatchApplication;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,21 +39,26 @@ public class JsonFetchIntentService extends IntentService {
             public void success(Object data) {
 
                 ((WatchApplication)getApplication()).decreaseFetchers();
-                JSONObject result = (JSONObject)data;
+                JSONArray result = (JSONArray)data;
                 Log.d(LOG_TAG, "received "+result);
                 try {
-                    String accountName = result.getString("name");
 
-                    ContentValues values = new ContentValues();
-                    values.put(AccountsTableColumns.NAME, accountName);
-                    JSONObject currentBill = result.getJSONObject("currentBill");
-                    values.put(AccountsTableColumns.AMOUNT, currentBill.getString("amount"));
-                    values.put(AccountsTableColumns.DATE, currentBill.getString(("date")));
-                    values.put(AccountsTableColumns.UPDATE_TIME, Calendar.getInstance().getTimeInMillis());
-                    Log.d(LOG_TAG, "values date is "+values.getAsString(AccountsTableColumns.DATE));
-                    Uri uri = Uri.parse(DataConstans.SCHEME+DataConstans.AUTHORITY+DataConstans.ACCOUNTS);
-                    Log.d(LOG_TAG, "uri is "+uri);
-                    getContentResolver().insert(uri, values);
+                    for (int i = 0; i < result.length(); i++) {
+
+                        JSONObject firstAccountOb = result.getJSONObject(i);
+                        String accountName = firstAccountOb.getString("name");
+
+                        ContentValues values = new ContentValues();
+                        values.put(AccountsTableColumns.NAME, accountName);
+                        values.put(AccountsTableColumns.AMOUNT, firstAccountOb.getString("amount"));
+                        values.put(AccountsTableColumns.DATE, firstAccountOb.getString(("date")));
+                        values.put(AccountsTableColumns.UPDATE_TIME, Calendar.getInstance().getTimeInMillis());
+                        Log.d(LOG_TAG, "values date is "+values.getAsString(AccountsTableColumns.DATE));
+                        Uri uri = Uri.parse(DataConstans.SCHEME+DataConstans.AUTHORITY+DataConstans.ACCOUNTS);
+                        Log.d(LOG_TAG, "uri is "+uri);
+                        getContentResolver().insert(uri, values);
+                    }
+
 
                 } catch (JSONException e) {
                     ((WatchApplication)getApplication()).decreaseFetchers();

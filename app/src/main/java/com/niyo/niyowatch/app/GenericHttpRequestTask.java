@@ -3,6 +3,7 @@ package com.niyo.niyowatch.app;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -16,7 +17,7 @@ import java.net.URL;
 /**
  * Created by oriharel on 3/29/14.
  */
-public class GenericHttpRequestTask extends AsyncTask<String, Void, JSONObject> {
+public class GenericHttpRequestTask extends AsyncTask<String, Void, JSONArray> {
 
     private ServiceCaller _caller;
     private static final String LOG_TAG = GenericHttpRequestTask.class.getSimpleName();
@@ -25,7 +26,7 @@ public class GenericHttpRequestTask extends AsyncTask<String, Void, JSONObject> 
     }
 
     @Override
-    protected JSONObject doInBackground(String... params) {
+    protected JSONArray doInBackground(String... params) {
 
         try {
             URL url = new URL(params[0]);
@@ -39,20 +40,18 @@ public class GenericHttpRequestTask extends AsyncTask<String, Void, JSONObject> 
                 String response = readResponse(is);
                 Log.d(LOG_TAG, "got response "+response);
                 is.close();
-                JSONObject jsonRes = new JSONObject(response);
+                JSONArray jsonRes = new JSONArray(response);
                 return jsonRes;
             }
             else if (sc == 401) {
                 Log.e(LOG_TAG, "Server authentication error, please try again");
                 String errorMsg = readResponse(con.getErrorStream());
-                JSONObject jsonError = new JSONObject("{errorCode:"+sc+"}");
-                return jsonError;
+                return null;
             }
             else {
                 Log.e(LOG_TAG, "Server  error, please try again");
                 String errorMsg = readResponse(con.getErrorStream());
-                JSONObject jsonError = new JSONObject("{errorCode:"+sc+"}");
-                return jsonError;
+                return null;
             }
 
         } catch (Exception e) {
@@ -73,19 +72,16 @@ public class GenericHttpRequestTask extends AsyncTask<String, Void, JSONObject> 
     }
 
     @Override
-    protected void onPostExecute(JSONObject result) {
+    protected void onPostExecute(JSONArray result) {
         try {
             if (result == null) {
                 _caller.failure("Result is error", "Gor error code");
-            }
-            else if (result.has("errorCode")) {
-                _caller.failure(result.get("errorCode"), "Gor error code");
             }
             else {
                 Log.d(LOG_TAG, "Http request succeeded");
                 _caller.success(result);
             }
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

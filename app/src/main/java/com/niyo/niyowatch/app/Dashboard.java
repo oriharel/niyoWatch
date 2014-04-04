@@ -100,8 +100,8 @@ public class Dashboard extends ActionBarActivity
         findViewById(R.id.noAccounts).setVisibility(View.GONE);
         Intent serviceIntent = new Intent(this, JsonFetchIntentService.class);
         ArrayList<String> urls = new ArrayList<String>();
-        urls.add("http://calm-fortress-7680.herokuapp.com/elec");
-        urls.add("http://calm-fortress-7680.herokuapp.com/bezeq");
+        urls.add("http://calm-fortress-7680.herokuapp.com/getAccounts");
+//        urls.add("http://calm-fortress-7680.herokuapp.com/bezeq");
         serviceIntent.putStringArrayListExtra(JsonFetchIntentService.URLS_EXTRA, urls);
         startService(serviceIntent);
 
