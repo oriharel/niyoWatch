@@ -158,13 +158,14 @@ public class Dashboard extends ActionBarActivity
                         String name = cursor.getString(cursor.getColumnIndex(AccountsTableColumns.NAME));
                         String amount = cursor.getString(cursor.getColumnIndex(AccountsTableColumns.AMOUNT));
                         Long updateTimeInMillis = cursor.getLong(cursor.getColumnIndex(AccountsTableColumns.UPDATE_TIME));
+                        String billDate = cursor.getString(cursor.getColumnIndex(AccountsTableColumns.DATE));
                         Calendar cal = Calendar.getInstance();
                         cal.setTimeInMillis(updateTimeInMillis);
                         if (name.toLowerCase().contains("bezeq")) {
-                            renderBox(R.id.bezeqBox, R.id.bezeqAmount, R.id.bezeqUpdate, amount.toString(), cal);
+                            renderBox(R.id.bezeqBox, R.id.bezeqAmount, R.id.bezeqUpdate, R.id.bezeqBillDate, amount.toString(), cal, billDate);
                         }
                         else if (name.toLowerCase().indexOf("elec") > -1){
-                            renderBox(R.id.elecBox, R.id.elecAmount, R.id.elecUpdate, amount.toString(), cal);
+                            renderBox(R.id.elecBox, R.id.elecAmount, R.id.elecUpdate, R.id.elecBillDate, amount.toString(), cal, billDate);
                         }
                         cursor.moveToNext();
                     }
@@ -188,7 +189,7 @@ public class Dashboard extends ActionBarActivity
 
     }
 
-    private void renderBox(int boxId, int amountViewId, int updateViewId, String currentAmount, Calendar updateTimeCal) {
+    private void renderBox(int boxId, int amountViewId, int updateViewId, int billDateViewId, String currentAmount, Calendar updateTimeCal, String billDateCal) {
         findViewById(R.id.noAccounts).setVisibility(View.GONE);
         findViewById(boxId).setVisibility(View.VISIBLE);
         TextView amountText = (TextView)findViewById(amountViewId);
@@ -197,6 +198,8 @@ public class Dashboard extends ActionBarActivity
         DateFormat df = new SimpleDateFormat("dd/MM/yy");
         String formattedDate = df.format(updateTimeCal.getTime());
         updateTime.setText(formattedDate);
+        TextView billDateView = (TextView)findViewById(billDateViewId);
+        billDateView.setText("Bill Date: "+billDateCal);
         findViewById(R.id.elecSivu).setVisibility(View.GONE);
         findViewById(R.id.elecAmount).setVisibility(View.VISIBLE);
     }
